@@ -1,0 +1,64 @@
+/* Header controls and anchored menus shared by both workspaces. */
+.topbar, .ai-mode .topbar { z-index: 6; pointer-events: none; }
+.topbar > a, .topbar > nav, .topbar > .top-actions { pointer-events: auto; }
+.top-actions .round, .top-actions .tools {
+  background: #ffffffdb;
+  border: 1px solid #e0e5ec;
+  box-shadow: 0 1px 3px #293c5508;
+}
+.top-actions .round { width: 42px; height: 42px; padding: 9px; }
+.top-actions .tools { position: relative; width: 116px; height: 42px; padding: 0 7px; gap: 0; }
+.tools > .icon-button { width: 48px; height: 38px; padding: 8px 12px; border-radius: 22px; }
+.tools > i { height: 16px; flex-shrink: 0; }
+.top-actions .icon-button svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #343d4d;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.top-actions .icon-button:hover { background: #f6f8fb; }
+.top-actions .icon-button[aria-expanded="true"] { background: #f1f4f8; }
+.header-menu[hidden] { display: none; }
+.header-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  border: 1px solid #edf0f3;
+  border-radius: 10px;
+  padding: 10px 8px;
+  background: #fff;
+  box-shadow: 0 7px 10px #00000021, 0 1px 5px #24324806;
+  z-index: 10;
+}
+.settings-menu { left: -59px; width: 176px; }
+.help-menu { right: -28px; width: 116px; }
+.header-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 38px;
+  padding: 0 9px;
+  border-radius: 5px;
+  color: #727b88;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 400;
+}
+.header-menu button:hover, .header-menu button:focus-visible { background: #f5f7fa; }
+.header-menu button.danger { color: #ff3039; }
+.header-menu button.danger:hover { background: #fff1f2; }
+.header-menu svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
