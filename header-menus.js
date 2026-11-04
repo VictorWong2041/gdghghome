@@ -58,13 +58,7 @@
       for (const name of ['transport','seat','hotel']) form.elements[name].value = saved[name];
       form.onsubmit = e => { e.preventDefault(); writePreference('gx-travel-preferences',Object.fromEntries(new FormData(form))); modal.close(); toast('差旅偏好已保存'); };
     },
-    customize: () => {
-      const saved = readPreference('gx-workbench-preferences',{home:'workbench'});
-      openModal('自定义工作台', `<form id="workbenchPreferences"><label class="field">默认打开的工作台<select name="home"><option value="workbench">常用工作台</option><option value="ai">AI 工作台</option></select></label><p class="detail-text">保存后立即切换，下次打开时使用该工作台。</p><div class="modal-actions"><button type="button" class="secondary" data-close>取消</button><button class="primary">保存设置</button></div></form>`);
-      const form = document.querySelector('#workbenchPreferences');
-      form.elements.home.value = saved.home;
-      form.onsubmit = e => { e.preventDefault(); const home=form.elements.home.value; writePreference('gx-workbench-preferences',{home}); switchWorkspace(home==='ai'); toast('默认工作台已更新'); };
-    },
+    customize: () => window.workbenchEditor.open(),
     logout: () => {
       openModal('退出系统','<p class="detail-text">当前为本地演示，尚未接入统一登录服务。</p><div class="modal-actions"><button class="primary" data-close>返回工作台</button></div>');
     }

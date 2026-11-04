@@ -4,33 +4,48 @@
  const toolbar=document.querySelector('.floating-tools');
  const initialButtons=toolbar.innerHTML;
  const articleData=window.portalArticles;
- const icon=name=>`<svg aria-hidden="true"><use href="#${name}"/></svg>`;
+ const icon=name=>name==='building'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3h12v17h3V9h4v11h1v2H1v-2h2z"/><path stroke="white" stroke-width="1.5" d="M6 7h5M6 11h5M6 15h5"/></svg>':name==='news'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 3h16v17H4a2 2 0 0 1-2-2zM20 7h2v13h-2z"/><path stroke="white" stroke-width="1.5" d="M5 7h10M5 11h10M5 15h7"/></svg>':name==='chart'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 14h4v8H3zM9 8h4v14H9zM15 2h4v20h-4z"/></svg>':`<svg aria-hidden="true"><use href="#${name}"/></svg>`;
  const bulletinTitles=['广东先进新材料产业集群加快布局','高性能复合材料下游需求增长','省级新材料专项扶持政策落地，重点攻关卡脖子材料','生物基、可降解新材料商业化进程加快','新材料产学研对接平台扩容，校企联合攻关项目持续落地'];
  let currentPage=document.body.classList.contains('ai-mode')?'ai':'workbench';
  let newsTab='推荐',groupTab='最新',bannerIndex=0;
+ let bannerTimer=null;
  const searchValues={news:'',group:''};
+ const bannerSlides=[
+  {image:'assets/portal-banner-clean.png',title:'庆祝广新集团连续四年上榜《财富》世界500强',alt:'设计稿示意：广新集团世界500强宣传横幅'},
+  {image:'assets/portal-banner-foshan.jpeg',title:'佛塑科技2026年前三季度经营迈上新台阶 整合融合与产业布局夯实发展动能',alt:'佛塑科技与金力新能源办公楼',url:articleData.find(a=>a.id==='foshan').url}
+ ];
  const fmt=(n,d=0)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
  window.navigateWorkspace=page=>{
    if(modal.open)modal.close();
+   const previous=currentPage;
    currentPage=page;
+   const messaging=page==='im'||page==='contacts';
+   document.body.classList.toggle('im-mode',messaging);
+   document.querySelector('#imView').hidden=page!=='im';
+   document.querySelector('#contactsView').hidden=page!=='contacts';
    const portal=page==='portal-news'||page==='portal-data';
    document.body.classList.toggle('portal-mode',portal);
    document.body.classList.toggle('ai-mode',page==='ai');
    document.querySelector('.dashboard').hidden=page!=='workbench';
    document.querySelector('#aiWorkspace').hidden=page!=='ai';
    newsView.hidden=page!=='portal-news';dataView.hidden=page!=='portal-data';
-   document.querySelectorAll('[data-nav]').forEach(b=>{const active=b.dataset.nav===(portal?'广新门户':'工作台');b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   document.querySelectorAll('[data-nav]').forEach(b=>{const active=b.dataset.nav===(messaging?'IM':portal?'广新门户':'工作台');b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    if(portal){
-     if(!toolbar.querySelector('[data-action="portalNews"]'))toolbar.innerHTML=`<button data-action="portalNews" aria-label="资讯">${icon('doc')}<span>资讯</span></button><button data-action="portalData" aria-label="数据">${icon('bars')}<span>数据</span></button>`;
+     if(!toolbar.querySelector('[data-action="portalNews"]'))toolbar.innerHTML=`<button data-action="portalNews" aria-label="资讯">${icon('news')}<span>资讯</span></button><button data-action="portalData" aria-label="数据">${icon('chart')}<span>数据</span></button>`;
      toolbar.querySelector('[data-action="portalNews"]').setAttribute('aria-pressed',String(page==='portal-news'));
      toolbar.querySelector('[data-action="portalData"]').setAttribute('aria-pressed',String(page==='portal-data'));
+   }else if(messaging){
+     if(!toolbar.querySelector('[data-action="imChat"]'))toolbar.innerHTML=`<button data-action="imChat" aria-label="IM">${icon('im-chat')}<span>IM</span></button><button data-action="imContacts" aria-label="通讯录">${icon('im-contacts')}<span>通讯录</span></button>`;
+     toolbar.querySelector('[data-action="imChat"]').setAttribute('aria-pressed',String(page==='im'));
+     toolbar.querySelector('[data-action="imContacts"]').setAttribute('aria-pressed',String(page==='contacts'));
    }else{
      if(!toolbar.querySelector('[data-action="ai"]'))toolbar.innerHTML=initialButtons;
      toolbar.querySelector('[data-action="ai"]').setAttribute('aria-pressed',String(page==='ai'));
      toolbar.querySelector('[data-action="workbench"]').setAttribute('aria-pressed',String(page==='workbench'));
    }
-   toolbar.setAttribute('aria-label',portal?'资讯与数据切换，可拖动调整位置':'工作台切换，可拖动调整位置');
-   document.title=`广智新 · ${{workbench:'智慧工作台',ai:'AI 工作台','portal-news':'广新门户','portal-data':'数据看板'}[page]}`;
+   toolbar.setAttribute('aria-label',messaging?'IM与通讯录切换，可拖动调整位置':portal?'资讯与数据切换，可拖动调整位置':'工作台切换，可拖动调整位置');
+   document.title=`广智新 · ${{workbench:'智慧工作台',ai:'AI 工作台','portal-news':'广新门户','portal-data':'数据看板',im:'IM',contacts:'通讯录'}[page]}`;
+   document.dispatchEvent(new CustomEvent('workspacechange',{detail:{page,previous}}));
  };
  actions.portal=()=>window.navigateWorkspace('portal-news');
  actions.portalNews=()=>window.navigateWorkspace('portal-news');
@@ -38,14 +53,29 @@
  function searchBox(section){return `<label class="portal-search"><input data-portal-search="${section}" aria-label="搜索${section==='news'?'智能资讯':'集团资讯'}" placeholder="搜索">${icon('search')}</label>`}
  function noticeList(type){return `<ol class="portal-notice-list">${bulletinTitles.map((t,i)=>`<li><button data-bulletin="${type}:${i}"><span class="rank">${i+1}${type==='announcement'?'.':''}</span><span class="notice-title">${t}</span></button></li>`).join('')}</ol>`}
  newsView.innerHTML=`<div class="portal-left">
-  <section class="portal-banner" aria-label="集团宣传轮播"><img class="portal-banner-image" src="assets/portal-banner.png" alt="设计稿示意横幅：庆祝广新集团连续四年上榜财富世界500强" title="设计稿横幅示意"><div class="portal-banner-text" hidden></div><div class="banner-dots" aria-label="切换轮播图">${[0,1,2].map(i=>`<button class="${i===0?'active':''}" data-banner="${i}" aria-label="第${i+1}张轮播" aria-pressed="${i===0}"></button>`).join('')}</div></section>
-  <section class="panel portal-news-panel"><div class="portal-head"><h2><span class="orange-bar"></span>AI 智能资讯</h2><div class="portal-tabs" role="tablist" aria-label="智能资讯分类">${['推荐','我关注的','与我有关','集团要闻','行业趋势','政策法规'].map(t=>`<button role="tab" data-news-tab="${t}" class="${t==='推荐'?'active':''}" aria-selected="${t==='推荐'}">${t}</button>`).join('')}</div>${searchBox('news')}<a class="more" href="https://www.gdghg.com/xwzx/gxyw/" target="_blank" rel="noopener noreferrer">更多 ›</a></div><div class="portal-card-track" id="newsTrack"></div><button class="portal-arrow" data-track-next="newsTrack" aria-label="下一组智能资讯">›</button></section>
+  <section class="portal-banner" aria-label="集团新闻轮播" aria-roledescription="轮播图"><div class="portal-banner-content"></div><div class="banner-dots" aria-label="切换轮播图">${bannerSlides.map((slide,i)=>`<button class="${i===0?'active':''}" data-banner="${i}" aria-label="第${i+1}张轮播" title="${esc(slide.title)}" aria-pressed="${i===0}"></button>`).join('')}</div></section>
+  <section class="panel portal-news-panel"><div class="portal-head"><h2><span class="orange-bar"></span>AI 智能资讯</h2><div class="portal-tabs" role="tablist" aria-label="智能资讯分类">${['推荐','我关注的','与我有关','集团要闻','行业趋势','政策法规'].map(t=>`<button role="tab" data-news-tab="${t}" class="${t==='推荐'?'active':''}" aria-selected="${t==='推荐'}">${t}</button>`).join('')}</div>${searchBox('news')}<a class="more" href="https://www.gdghg.com/xwzx/gxyw/" target="_blank" rel="noopener noreferrer">更多 ›</a></div><div class="portal-card-track" id="newsTrack"></div><button class="portal-arrow left" data-track-prev="newsTrack" aria-label="上一组智能资讯" hidden>‹</button><button class="portal-arrow" data-track-next="newsTrack" aria-label="下一组智能资讯">›</button></section>
   <section class="panel portal-group-panel"><div class="portal-head"><h2><span class="orange-bar"></span>集团综合资讯</h2><div class="portal-tabs" role="tablist" aria-label="集团资讯分类">${['最新','最热','焦点','党建'].map(t=>`<button role="tab" data-group-tab="${t}" class="${t==='最新'?'active':''}" aria-selected="${t==='最新'}">${t}</button>`).join('')}</div>${searchBox('group')}<a class="more" href="https://www.gdghg.com/xwzx/gxyw/" target="_blank" rel="noopener noreferrer">更多 ›</a></div><div class="portal-card-track portal-group-track" id="groupTrack"></div><button class="portal-arrow left" data-track-prev="groupTrack" aria-label="上一组集团资讯">‹</button><button class="portal-arrow" data-track-next="groupTrack" aria-label="下一组集团资讯">›</button></section>
  </div><div class="portal-right"><section class="panel portal-service"><div class="section-head"><h2><span class="orange-bar"></span>AI 主动服务与智能提醒</h2><button class="more" data-portal-command="reminders">更多 ›</button></div><div class="portal-reminders">
- <article class="portal-reminder" data-reminder="hotel"><span class="reminder-icon">${icon('doc')}</span><div class="reminder-heading">出差申请 <span>出行准备</span></div><h3>明天前往济南出差，尚未查到酒店预订</h3><p>出差申请已审批通过，关联记录中已有机票，暂未查到覆盖入住日期的酒店。若已通过其他渠道预订，请先核实。</p><div class="reminder-actions"><button data-reminder-view="hotel">查看</button data-ignore><button data-reminder-ignore="hotel">忽略</button></div></article>
+ <article class="portal-reminder" data-reminder="hotel"><span class="reminder-icon">${icon('doc')}</span><div class="reminder-heading">出差申请 <span>出行准备</span></div><h3>明天前往济南出差，尚未查到酒店预订</h3><p>出差申请已审批通过，关联记录中已有机票，暂未查到覆盖入住日期的酒店。若已通过其他渠道预订，请先核实。</p><div class="reminder-actions"><button data-reminder-view="hotel">查看</button><button data-reminder-ignore="hotel">忽略</button></div></article>
  <article class="portal-reminder" data-reminder="flight"><span class="reminder-icon red-tone">${icon('people')}</span><div class="reminder-heading">酒店/机票/高铁预订 <span class="purple-tone">行程核对</span></div><h3>明早08:30航班起飞，请提前核对行程</h3><p>广州白云—济南遥墙，机票状态为已出票。返程高铁与酒店订单也可一并核对；预订时间不代表实时运行状态。</p><div class="reminder-actions"><button data-reminder-view="flight">查看</button><button data-reminder-ignore="flight">忽略</button></div></article></div></section>
  <section class="panel portal-notices"><div class="section-head"><h2><span class="heading-symbol">📣</span>最新通知</h2><button class="more" data-portal-command="notices">更多 ›</button></div>${noticeList('notice')}</section>
  <section class="panel portal-notices portal-announcements"><div class="section-head"><h2><span class="heading-symbol">📢</span>最新公告</h2><button class="more" data-portal-command="announcements">更多 ›</button></div>${noticeList('announcement')}</section></div>`;
+ function scheduleBanner(){
+  clearTimeout(bannerTimer);bannerTimer=null;
+  if(currentPage!=='portal-news'||document.hidden)return;
+  bannerTimer=setTimeout(()=>{renderBanner((bannerIndex+1)%bannerSlides.length);},8000);
+ }
+ document.addEventListener('visibilitychange',scheduleBanner);
+ document.addEventListener('workspacechange',scheduleBanner);
+ function renderBanner(index=0){
+  bannerIndex=Math.max(0,Math.min(bannerSlides.length-1,index));
+  const slide=bannerSlides[bannerIndex];
+  const content=`<img class="portal-banner-image" src="${slide.image}" alt="${esc(slide.alt)}"><div class="portal-banner-caption"><span title="${esc(slide.title)}">${esc(slide.title)}</span></div>`;
+  document.querySelector('.portal-banner-content').innerHTML=slide.url?`<a class="portal-banner-link" href="${slide.url}" target="_blank" rel="noopener noreferrer" aria-label="${esc(slide.title)}（新窗口打开）">${content}</a>`:content;
+  document.querySelectorAll('[data-banner]').forEach(b=>{const active=+b.dataset.banner===bannerIndex;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+  scheduleBanner();
+ }
  function filteredArticles(section){
   let list=[...articleData];
   if(section==='news'){
@@ -61,9 +91,58 @@
   }
   const q=searchValues[section].trim();return q?list.filter(a=>`${a.title}${a.category}`.includes(q)):list;
  }
- function renderArticles(section){const list=filteredArticles(section);const track=document.getElementById(section==='news'?'newsTrack':'groupTrack');track.innerHTML=list.length?list.map(a=>section==='news'?`<a class="portal-news-card" href="${a.url}" target="_blank" rel="noopener noreferrer" title="${esc(a.title)}（广新集团官网，新窗口打开）"><img src="assets/${a.image}.png" alt="" title="设计稿配图"><div class="portal-news-copy"><div class="portal-tags"><span>${a.category}</span>${a.featured?'<span>重磅</span>':''}</div><h3>${esc(a.title)}</h3><p>${esc(a.summary)}</p><div class="portal-news-meta"><span>广新集团</span><time>${a.date}</time></div></div></a>`:`<a class="portal-group-card" href="${a.url}" target="_blank" rel="noopener noreferrer" title="${esc(a.title)}（广新集团官网，新窗口打开）"><img src="assets/${a.image}.png" alt="" title="设计稿配图"><h3>${esc(a.title)}</h3><time>${a.date}</time></a>`).join(''):'<p class="portal-empty">暂无匹配资讯</p>';track.scrollLeft=0;document.querySelectorAll(section==='news'?'[data-news-tab]':'[data-group-tab]').forEach(b=>{const active=(section==='news'?b.dataset.newsTab:b.dataset.groupTab)===(section==='news'?newsTab:groupTab);b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});updateTrackButtons(track)}
- function updateTrackButtons(track){const next=document.querySelector(`[data-track-next="${track.id}"]`),prev=document.querySelector(`[data-track-prev="${track.id}"]`);if(next)next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;if(prev)prev.disabled=track.scrollLeft<=1}
- ['newsTrack','groupTrack'].forEach(id=>document.getElementById(id).addEventListener('scroll',e=>updateTrackButtons(e.currentTarget)));
+ function renderArticles(section){const list=filteredArticles(section);const track=document.getElementById(section==='news'?'newsTrack':'groupTrack');track.innerHTML=list.length?list.map((a,index)=>section==='news'?`<a class="portal-news-card" href="${a.url}" target="_blank" rel="noopener noreferrer" title="${esc(a.title)}（广新集团官网，新窗口打开）"><img src="assets/${a.image}.png" alt="" title="设计稿配图"><div class="portal-news-copy"><div class="portal-tags"><span>${a.category}</span>${a.featured?'<span>重磅</span>':''}</div><h3>${esc(a.title)}</h3><p>${esc(a.summary)}</p><div class="portal-news-meta"><span>广新集团</span><time>${a.date}</time></div></div></a>`:`<a class="portal-group-card" href="${a.url}" target="_blank" rel="noopener noreferrer" title="${esc(a.title)}（广新集团官网，新窗口打开）"><img src="assets/${['news-office','news-conference','news-event','news-meeting','news-port'][index%5]}.png" alt="" title="设计稿配图"><h3>${esc(a.title)}</h3><time>${a.date}</time></a>`).join(''):'<p class="portal-empty">暂无匹配资讯</p>';track.scrollTo({left:0,behavior:'instant'});document.querySelectorAll(section==='news'?'[data-news-tab]':'[data-group-tab]').forEach(b=>{const active=(section==='news'?b.dataset.newsTab:b.dataset.groupTab)===(section==='news'?newsTab:groupTab);b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});updateTrackButtons(track)}
+ function updateTrackButtons(track){
+  const next=document.querySelector(`[data-track-next="${track.id}"]`);
+  const prev=document.querySelector(`[data-track-prev="${track.id}"]`);
+  const maxScroll=Math.max(0,track.scrollWidth-track.clientWidth);
+  const visible=track.clientWidth>0&&maxScroll>2;
+  if(next){next.hidden=!visible||track.scrollLeft>=maxScroll-2;next.disabled=next.hidden;}
+  if(prev){prev.hidden=!visible||track.scrollLeft<=2;prev.disabled=prev.hidden;}
+ }
+ function enableTrackDragging(track){
+  let drag=null,suppressClick=false;
+  function finish(event){
+   if(!drag||event.pointerId!==drag.id)return;
+   const finished=drag;drag=null;
+   if(finished.moved)suppressClick=true;
+   track.classList.remove('is-dragging');
+   if(track.hasPointerCapture(finished.id))track.releasePointerCapture(finished.id);
+   updateTrackButtons(track);
+  }
+  track.addEventListener('pointerdown',event=>{
+   if(!event.isPrimary||event.button!==0||drag)return;
+   suppressClick=false;
+   if(track.scrollWidth-track.clientWidth<=2)return;
+   const scale=track.getBoundingClientRect().width/track.offsetWidth||1;
+   // Stop any arrow animation at its current position before starting a drag.
+   track.scrollTo({left:track.scrollLeft,behavior:'instant'});
+   drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:track.scrollLeft,scale,moved:false};
+  });
+  window.addEventListener('pointermove',event=>{
+   if(!drag||event.pointerId!==drag.id)return;
+   const delta=event.clientX-drag.x;
+   if(!drag.moved){
+    if(Math.abs(delta)<5||Math.abs(delta)<Math.abs(event.clientY-drag.y))return;
+    drag.moved=true;track.classList.add('is-dragging');track.setPointerCapture(event.pointerId);
+   }
+   event.preventDefault();
+   track.scrollLeft=Math.max(0,Math.min(track.scrollWidth-track.clientWidth,drag.left-delta/drag.scale));
+   updateTrackButtons(track);
+  },{passive:false});
+  window.addEventListener('pointerup',finish);
+  window.addEventListener('pointercancel',finish);
+  track.addEventListener('lostpointercapture',finish);
+  track.addEventListener('dragstart',event=>event.preventDefault());
+  track.addEventListener('click',event=>{
+   if(suppressClick&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();suppressClick=false;}
+  },true);
+  track.addEventListener('scroll',()=>updateTrackButtons(track),{passive:true});
+  const observer=new ResizeObserver(()=>updateTrackButtons(track));observer.observe(track);
+  document.addEventListener('workspacechange',()=>{if(drag)finish({pointerId:drag.id});});
+ }
+ window.portalCarousel={attach:enableTrackDragging,refresh:updateTrackButtons};
+ ['newsTrack','groupTrack'].forEach(id=>enableTrackDragging(document.getElementById(id)));
  const projects=[
  {name:'智能制造装备升级项目',company:'广东某某科技股份有限公司',type:'智能制造',stage:'投资中',irr:18.5,years:4.2,progress:75,profit:16.8,budget:8500,actual:7200,short:'新一代人工智能技术…'},
  {name:'高性能复合材料研发项目',company:'深圳某某创新研究院',type:'新材料',stage:'投后管理',irr:22.3,years:3.8,progress:90,profit:21.4,budget:6200,actual:5100,short:'高性能复合材料研制'},
@@ -84,7 +163,7 @@
  <section class="panel data-progress"><div class="data-head">${headline('集团重大科技创新项目实施进度')}</div><div class="chart-legend"><span><i class="legend-dot" style="--dot:#ff201f"></i>预算研发经费投入 (万元)</span><span><i class="legend-dot" style="--dot:#ffceb9"></i>实际研发经费投入 (万元)</span></div><div class="research-bars">${projects.map((p,i)=>`<button class="research-bar-row" data-project="${i}" title="${p.name}"><span>${p.short}</span><div class="bar-pair"><div class="research-bar" style="width:${p.budget/85}%"><em>${fmt(p.budget)}</em></div><div class="research-bar actual" style="width:${p.actual/85}%"><em>${fmt(p.actual)}</em></div></div></button>`).join('')}</div></section></div>`;
  const tooltip=document.createElement('div');tooltip.className='chart-tooltip';tooltip.hidden=true;tooltip.setAttribute('role','status');document.body.appendChild(tooltip);
  function companyFactor(name){return name==='全部企业'||name==='集团合并'?1:name==='广东科技'?.62:name==='深圳创新'?.38:.28}
- function drawMetrics(){const factor=companyFactor(filters.summary);document.querySelector('#metricGrid').innerHTML=[['营业收入(亿元)',1234.56,''],['利润总额(亿元)',345.67,'green-tone'],['资产总额(亿元)',5678.90,'orange-tone'],['净利润(亿元)',123.45,'red-tone']].map(([label,n,color])=>`<div class="metric"><span class="metric-icon ${color}">${icon('people')}</span><div><div class="metric-label">${label}</div><div class="metric-value">${fmt(n*factor,2)}</div></div></div>`).join('');document.querySelector('#ratioGrid').innerHTML=[['净资产收益率',11.2],['营业收入现金比率',11.2],['资产负债率',1.2],['研发投入强度',26.2],['全员劳动生产率',22.1]].map(([t,n])=>`<div class="ratio"><span>${t}</span><strong>${(n*(factor===1?1:.94)).toFixed(1)}<small>%</small></strong></div>`).join('')}
+ function drawMetrics(){const factor=companyFactor(filters.summary);document.querySelector('#metricGrid').innerHTML=[['营业收入(亿元)',1234.56,''],['利润总额(亿元)',345.67,'green-tone'],['资产总额(亿元)',5678.90,'orange-tone'],['净利润(亿元)',123.45,'red-tone']].map(([label,n,color])=>`<div class="metric"><span class="metric-icon ${color}">${icon('building')}</span><div><div class="metric-label">${label}</div><div class="metric-value">${fmt(n*factor,2)}</div></div></div>`).join('');document.querySelector('#ratioGrid').innerHTML=[['净资产收益率',11.2],['营业收入现金比率',11.2],['资产负债率',1.2],['研发投入强度',26.2],['全员劳动生产率',22.1]].map(([t,n])=>`<div class="ratio"><span>${t}</span><strong>${(n*(factor===1?1:.94)).toFixed(1)}<small>%</small></strong></div>`).join('')}
  function drawTax(){const factor=companyFactor(filters.company)*(filters.year==='2025'?.88:1);document.querySelectorAll('[data-tax-revenue]').forEach(el=>el.textContent=fmt(12345.67*factor,2));document.querySelectorAll('[data-tax-rate]').forEach(el=>el.textContent=(2.1*(filters.year==='2025'?1.04:1)).toFixed(2));const revenue=[18000,16000,16500,14500,18000,18000,16500,14500].map(n=>n*factor),rates=[2.3,1.7,2.45,1.8,2.55,1.95,2.55,1.15];
   [0,1].forEach(index=>{const svg=document.querySelector(`#taxChart${index}`),color=index?'#03c8ce':'#ff8000';let contents=[0,5000,10000,15000,20000].map(v=>{const y=119-v/20000*100;return `<line x1="30" y1="${y}" x2="510" y2="${y}" stroke="#edf1f7"/>${[0,10000,15000,20000].includes(v)?`<text x="0" y="${y+4}">${v?v/1000+'k':'0'}</text>`:''}`}).join('');contents+=[0,1,2,3].map(v=>`<text x="512" y="${123-v/3*100}">${v}%</text>`).join('');const points=rates.map((r,i)=>`${55+i*61},${119-r/3*100}`).join(' ');contents+=revenue.map((v,i)=>`<g class="chart-hit" tabindex="0" data-chart-month="${i}" data-chart-label="${i+1}月 · 营业收入 ${fmt(v,2)} 万元 · 整体税负率 ${rates[i].toFixed(2)}%"><rect x="${49+i*61}" y="${119-v/20000*100}" width="11" height="${v/20000*100}" rx="5" fill="${color}"/><rect x="${32+i*61}" y="12" width="45" height="109" fill="transparent"/><title>${i+1}月：营业收入 ${fmt(v,2)}万元，整体税负率${rates[i]}%</title><text x="${55+i*61}" y="140" text-anchor="middle">${i+1}月</text></g>`).join('');contents+=`<polyline points="${points}" fill="none" stroke="#1677ff" stroke-width="2.2" pointer-events="none"/>`+rates.map((r,i)=>`<circle cx="${55+i*61}" cy="${119-r/3*100}" r="3" fill="white" stroke="#1677ff" stroke-width="2" pointer-events="none"/>`).join('');svg.innerHTML=contents})}
  function drawProjects(){let list=projects.map((p,i)=>({...p,id:i})).filter(p=>(filters.projectType==='项目类型'||p.type===filters.projectType)&&(filters.projectCompany==='所属企业'||p.company===filters.projectCompany)&&(filters.stage==='投资阶段'||p.stage===filters.stage));document.querySelector('#projectRows').innerHTML=list.length?list.map(p=>{const progress=filters.month==='2026-08'?Math.max(0,p.progress-8):p.progress;return `<tr tabindex="0" data-project="${p.id}"><td title="${p.name}">${p.name}</td><td title="${p.company}">${p.company}</td><td><span class="stage-badge ${p.stage==='投后管理'?'post':p.stage==='投前'?'pre':''}">${p.stage}</span></td><td>${p.irr.toFixed(2)}%</td><td>${p.years.toFixed(1)} 年</td><td><span class="project-progress"><span class="project-track"><span class="project-fill" style="width:${progress}%"></span></span>${progress}%</span></td><td>${p.profit===null?'--':p.profit.toFixed(2)+'%'}</td></tr>`}).join(''):'<tr><td colspan="7" class="empty">暂无符合筛选条件的项目</td></tr>'}
@@ -100,7 +179,7 @@
   if(target.dataset.newsTab){newsTab=target.dataset.newsTab;renderArticles('news')}
   if(target.dataset.groupTab){groupTab=target.dataset.groupTab;renderArticles('group')}
   if(target.dataset.trackNext||target.dataset.trackPrev){const track=document.getElementById(target.dataset.trackNext||target.dataset.trackPrev);track.scrollBy({left:(target.dataset.trackNext?1:-1)*554,behavior:'smooth'})}
-  if(target.dataset.banner!==undefined){bannerIndex=+target.dataset.banner;document.querySelectorAll('[data-banner]').forEach(b=>{b.classList.toggle('active',+b.dataset.banner===bannerIndex);b.setAttribute('aria-pressed',String(+b.dataset.banner===bannerIndex))});const overlay=document.querySelector('.portal-banner-text');overlay.hidden=bannerIndex===0;overlay.innerHTML=bannerIndex===1?'<strong>以科技创新引领产业升级</strong><p>聚焦先进制造，培育发展新动能</p>':'<strong>广新，让未来更美好</strong><p>协同发展 · 产业共创 · 开放合作</p>'}
+  if(target.dataset.banner!==undefined)renderBanner(+target.dataset.banner);
   if(target.dataset.reminderView)reminderDetail(target.dataset.reminderView);
   if(target.dataset.reminderIgnore){target.closest('.portal-reminder').remove();if(!document.querySelector('.portal-reminder'))document.querySelector('.portal-reminders').innerHTML='<p class="portal-empty">暂无待处理提醒</p>';toast('已忽略此提醒')}
   if(target.dataset.bulletin){const [type,index]=target.dataset.bulletin.split(':');openModal(type==='notice'?'最新通知':'最新公告',`<h3>${bulletinTitles[+index]}</h3><p class="detail-text">此条为设计稿中的示例通知，尚未接入企业通知公告系统。真实集团新闻可通过资讯卡片进入官网查看。</p>`)}
@@ -113,7 +192,7 @@
  dataView.addEventListener('pointermove',e=>{const hit=e.target.closest('[data-chart-label]');if(!hit){tooltip.hidden=true;return}tooltip.hidden=false;tooltip.textContent=hit.dataset.chartLabel;tooltip.style.left=Math.max(8,Math.min(window.innerWidth-280,e.clientX+12))+'px';tooltip.style.top=Math.max(8,Math.min(window.innerHeight-80,e.clientY-60))+'px'});
  dataView.addEventListener('pointerleave',()=>{tooltip.hidden=true});
  dataView.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const item=e.target.closest('[data-project]');if(item){e.preventDefault();showProject(+item.dataset.project)}});
- renderArticles('news');renderArticles('group');drawMetrics();drawTax();drawProjects();drawMap();
+ renderBanner();renderArticles('news');renderArticles('group');drawMetrics();drawTax();drawProjects();drawMap();
  // Measurements are available once the portal is visible.
  const originalNavigate=window.navigateWorkspace;
  window.navigateWorkspace=page=>{tooltip.hidden=true;originalNavigate(page);if(page==='portal-news')requestAnimationFrame(()=>['newsTrack','groupTrack'].forEach(id=>updateTrackButtons(document.getElementById(id))))};
