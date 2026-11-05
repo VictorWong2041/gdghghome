@@ -131,3 +131,180 @@ body.compact .daily-brief .brief-copy p {
   .daily-brief .brief-copy { padding-left: 0; }
   .daily-brief .brief-card h2 { font-size: 16px; line-height: 24px; }
 }
+
+/* 入职周年祝福弹窗 */
+dialog.thanks-dialog {
+  width: min(440px, 92vw, 68vh);
+  max-width: none;
+  height: auto;
+  max-height: 92vh;
+  aspect-ratio: 1000 / 1248;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffd2ad;
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.thanks-dialog .modal-head { display: none; }
+dialog.thanks-dialog #modalBody { flex: 1; min-height: 0; display: flex; }
+
+dialog.thanks-dialog .thanks-dialog-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+dialog.thanks-dialog .thanks-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ff7a2e;
+  color: #fff;
+  box-shadow: 0 2px 8px #ff7a2e55;
+  transition: background .15s, transform .15s;
+}
+dialog.thanks-dialog .thanks-close svg { width: 17px; height: 17px; }
+dialog.thanks-dialog .thanks-close:hover { background: #ff8f4d; transform: scale(1.05); }
+
+dialog.thanks-dialog .thanks-hero-wrap { position: relative; flex: 0 0 40%; min-height: 0; }
+dialog.thanks-dialog .thanks-hero {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+dialog.thanks-dialog .thanks-hero-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, #ffd2ad);
+}
+
+dialog.thanks-dialog .thanks-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 14px;
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px 16px 0;
+}
+
+dialog.thanks-dialog .thanks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+dialog.thanks-dialog .thanks-tip { font-size: 16px; line-height: 24px; font-weight: 500; color: #23293a; }
+
+dialog.thanks-dialog .thanks-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+dialog.thanks-dialog .thanks-tag {
+  padding: 7px 6px;
+  border-radius: 18px;
+  background: #f3f4f7;
+  color: #2c3547;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  transition: background .15s, color .15s;
+}
+dialog.thanks-dialog .thanks-tag:hover { background: #e9ebf0; }
+dialog.thanks-dialog .thanks-tag.active {
+  background: #eef1f6;
+  color: #1f2637;
+  font-weight: 500;
+}
+
+dialog.thanks-dialog .thanks-divider {
+  height: 1px;
+  background: #e4e7ec;
+  margin: 14px 0 0;
+}
+
+dialog.thanks-dialog #thanksBox {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 40px;
+  resize: none;
+  border: 0;
+  outline: 0;
+  padding: 16px 0 0;
+  background: transparent;
+  color: #23293a;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  font-family: inherit;
+}
+dialog.thanks-dialog #thanksBox::placeholder { color: #a4acb9; font-size: 14px; }
+
+dialog.thanks-dialog .thanks-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-bottom: 16px;
+}
+dialog.thanks-dialog .thanks-emoji {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #5c6675;
+  transition: background .15s;
+}
+dialog.thanks-dialog .thanks-emoji:hover { background: #f0f2f6; }
+dialog.thanks-dialog .thanks-emoji svg { width: 22px; height: 22px; }
+dialog.thanks-dialog .thanks-footer-right { display: flex; align-items: center; gap: 20px; }
+dialog.thanks-dialog [data-thanks-reroll] {
+  color: #434c5d;
+  font-size: 12px;
+  line-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+dialog.thanks-dialog [data-thanks-reroll]:hover { color: #ff7a2e; }
+dialog.thanks-dialog .thanks-reroll-icon { width: 15px; height: 15px; }
+dialog.thanks-dialog .thanks-count { color: #434c5d; font-size: 12px; line-height: 18px; }
+
+dialog.thanks-dialog .thanks-send {
+  flex: 0 0 auto;
+  width: calc(100% - 28px);
+  margin: 14px 14px 14px;
+  padding: 11px 0;
+  border-radius: 999px;
+  background: linear-gradient(95deg, #ffab5e, #ff8038);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  box-shadow: 0 10px 22px #ff8b3d3d;
+  transition: box-shadow .15s, transform .15s;
+}
+dialog.thanks-dialog .thanks-send:hover { box-shadow: 0 12px 26px #ff8b3d66; transform: translateY(-1px); }
