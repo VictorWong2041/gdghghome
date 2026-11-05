@@ -43,6 +43,7 @@ aiWorkspace.innerHTML = `
  ${[['write','创作文档','智能写作'],['ask','咨询问答','智能问答'],['ppt','制作PPT','制作PPT'],['data','分析数据','智能数据']].map(([id,title,mode])=>`<button class="ai-feature" data-ai-feature="${mode}"><div class="ai-feature-art ${id}"><img src="assets/ai-${id}.png" alt=""><h2>${title}</h2></div><p>从需求到方案一键生成完整<br>方案</p><span class="ai-feature-arrow" aria-hidden="true">→</span></button>`).join('')}
  </div><div class="ai-question-tabs" role="tablist" aria-label="问题分类"><button role="tab" aria-selected="false" data-ai-category="recent">最近记录</button><button class="active" role="tab" aria-selected="true" data-ai-category="hot">热门问答</button><button role="tab" aria-selected="false" data-ai-category="common">常用问题</button></div><div class="ai-question-list"></div></section>
  <section class="ai-chat-view" aria-label="会话内容" aria-live="polite"></section>
+ <section class="ai-market" aria-label="智能体与技能市场" hidden></section>
  <form class="ai-composer"><img class="ai-mascot" src="assets/ai-mascot.png" alt="广智新助手"><div class="ai-context-tray" aria-label="已选择的指令和引用" hidden></div><div id="aiComposerPopover" class="ai-composer-popover" hidden></div><textarea class="ai-prompt" aria-label="输入任务或问题" aria-haspopup="listbox" aria-controls="aiSuggestionList" aria-expanded="false" placeholder="${AI_PROMPT_PLACEHOLDER}"></textarea><input type="file" id="aiFileInput" multiple hidden aria-label="添加附件"><div class="ai-composer-tools"><button type="button" class="ai-add" data-ai-command="attach" aria-label="添加附件">＋</button>
  ${[['ask','智能问答'],['write','智能写作'],['summary','智能摘要'],['data','智能数据']].map(([icon,label])=>`<button type="button" class="ai-mode-button" data-ai-mode="${label}">${aiIcon(icon)}${label}</button>`).join('')}
  <span class="ai-toolbar-spacer"></span><button type="button" class="ai-network" aria-pressed="false" title="联网搜索（演示）">◎ 联网搜索</button><select class="ai-model" aria-label="选择模型"><option value="qwen3.8-27">qwen3.8-27...</option><option value="enterprise">企业知识助手</option></select><button type="button" class="ai-send" aria-label="语音输入" title="语音输入">${aiIcon('mic')}</button></div></form>
@@ -77,7 +78,7 @@ function switchWorkspace(ai){if(window.navigateWorkspace)return window.navigateW
 actions.ai=()=>switchWorkspace(true);actions.workbench=()=>switchWorkspace(false);
 function closeAiPicker(){aiPicker=null;aiPopover.hidden=true;aiPopover.innerHTML='';aiPrompt.setAttribute('aria-expanded','false');aiPrompt.removeAttribute('aria-activedescendant')}
 function clearAiDraft(){aiDraftVersion++;aiPrompt.value='';aiReferences=[];aiSelectedCommand=null;selectedAiMode='智能问答';document.querySelector('#aiFileInput').value='';document.querySelectorAll('[data-ai-mode]').forEach(b=>b.classList.remove('selected'));closeAiPicker();renderAiContexts();updateAiSend()}
-function newAiConversation(){activeConversation=null;aiWorkspace.classList.remove('has-conversation');document.querySelector('.ai-page-title').textContent='新建会话';document.querySelector('.ai-chat-view').innerHTML='';clearAiDraft();if('speechSynthesis'in window)speechSynthesis.cancel()}
+function newAiConversation(){activeConversation=null;closeAiMarket();aiWorkspace.classList.remove('has-conversation');const title=document.querySelector('.ai-page-title');title.textContent='新建会话';title.title='新建会话';document.querySelector('.ai-chat-view').innerHTML='';clearAiDraft();if('speechSynthesis'in window)speechSynthesis.cancel()}
 function updateAiSend(){const filled=!!aiPrompt.value.trim()||aiReferences.length>0;const button=document.querySelector('.ai-send');button.innerHTML=aiIcon(filled?'send':'mic');button.setAttribute('aria-label',filled?'发送消息':'语音输入');button.title=filled?'发送消息':'语音输入';aiPrompt.placeholder=AI_PROMPT_PLACEHOLDER}
 function renderAiContexts(){const chips=[];if(aiSelectedCommand)chips.push(`<span class="ai-context-chip command">${aiIcon(aiSelectedCommand.icon)}${aiSelectedCommand.name}<button type="button" data-ai-remove-command aria-label="移除指令">×</button></span>`);aiReferences.forEach((r,i)=>chips.push(`<span class="ai-context-chip">${aiIcon(r.kind==='file'?'file':'ask')}<button type="button" class="ai-context-name" data-ai-context="${i}" title="${esc(r.name)}">${esc(r.name)}</button><button type="button" data-ai-remove-reference="${i}" aria-label="移除引用${esc(r.name)}">×</button></span>`));aiContextTray.innerHTML=chips.join('');aiContextTray.hidden=!chips.length;document.querySelector('.ai-composer').classList.toggle('has-context',chips.length>0);aiWorkspace.classList.toggle('has-draft-context',chips.length>0)}
 function chooseAiMode(mode){selectedAiMode=mode;aiSelectedCommand=aiCommandsList.find(c=>c.mode===mode)||null;document.querySelectorAll('[data-ai-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.aiMode===mode));aiPrompt.placeholder=AI_PROMPT_PLACEHOLDER;renderAiContexts();updateAiSend();aiPrompt.focus()}
@@ -106,7 +107,7 @@ function aiDemoReply(text,mode=selectedAiMode,refs=aiReferences){
  return `## ${text.length<35?text:'处理建议'}\n\n已收到您的消息。您可以补充业务背景、相关资料与希望得到的结果。\n\n### 可以继续做的事\n- 输入 / 选择写作、摘要或数据分析指令。\n- 输入 @ 引用文件或已有对话。\n- 使用 /任务 创建带截止时间的工作事项。\n\n---\n当前为本地交互演示，回复使用预设内容，尚未连接真实模型。`;
 }
 function aiTaskCard(id){const task=aiTasks.find(t=>t.id===id);if(!task)return '';return `<div class="ai-task-card"><div class="ai-task-card-title">${aiIcon('task')}<strong>${esc(task.title)}</strong><span class="ai-task-state ${task.done?'done':''}">${task.done?'已完成':'待处理'}</span></div><p>${task.due?'截止：'+esc(task.due):'未设置截止时间'}　·　${esc(task.priority)}优先级</p>${task.note?`<p>${esc(task.note)}</p>`:''}<button data-ai-task-toggle="${task.id}" aria-pressed="${!!task.done}">${task.done?'标记未完成':'标记完成'}</button></div>`}
-function renderAiConversation(scroll=true){if(!activeConversation)return;aiWorkspace.classList.add('has-conversation');document.querySelector('.ai-page-title').textContent='新建会话';const box=document.querySelector('.ai-chat-view');const previous=box.scrollTop;
+function renderAiConversation(scroll=true){if(!activeConversation)return;aiWorkspace.classList.add('has-conversation');const title=document.querySelector('.ai-page-title');title.textContent=activeConversation.title;title.title=activeConversation.title;const box=document.querySelector('.ai-chat-view');const previous=box.scrollTop;
  box.innerHTML=activeConversation.messages.map(m=>m.role==='user'?`<article class="ai-chat-message user-message"><div class="ai-user-bubble">${esc(m.text)}</div>${m.refs?.length?`<div class="ai-sent-references">${m.refs.map((r,i)=>`<button data-ai-sent-ref="${m.id}:${i}">${aiIcon(r.kind==='file'?'file':'ask')}${esc(r.name)}</button>`).join('')}</div>`:''}</article>`:`<article class="ai-chat-message assistant-message" data-ai-message="${m.id}"><div class="ai-reply-status"><img src="assets/ai.png" alt="广智新 AI"><span>已思考</span><small title="当前回复由本地示例逻辑生成，未连接真实模型">示例回复</small>${m.regenerations?'<small>已重新生成</small>':''}</div><div class="ai-reply-body">${formatAiReply(m.text)}</div>${m.taskId?aiTaskCard(m.taskId):''}<div class="ai-reply-actions" aria-label="回复操作">${[['audio','朗读'],['copy','复制'],['download','下载'],['refresh','重新生成'],['share','分享'],['like','有帮助'],['dislike','无帮助']].map(([action,label])=>`<button type="button" data-ai-reply-action="${action}" data-message-id="${m.id}" aria-label="${label}" title="${label}" ${['like','dislike'].includes(action)?`aria-pressed="${m.vote===action}"`:''}>${aiIcon(action)}</button>`).join('')}</div></article>`).join('');
  if(scroll){const users=box.querySelectorAll('.user-message');box.scrollTop=users.length>1?users[users.length-1].offsetTop:0;}else box.scrollTop=previous;
 }
@@ -137,10 +138,32 @@ function performAiReplyAction(action,id){const message=activeConversation?.messa
  if(action==='share'){const transcript=activeConversation.messages.map(m=>`${m.role==='user'?'我':'广智新 AI'}：\n${plainAiText(m.text)}`).join('\n\n');openModal('分享对话',`<h3>${esc(activeConversation.title)}</h3><p class="detail-text">复制对话文本后，可粘贴分享给同事。</p><textarea class="ai-share-text" readonly>${esc(transcript)}</textarea><div class="modal-actions"><button class="primary" id="aiCopyTranscript">复制对话</button></div>`);document.querySelector('#aiCopyTranscript').onclick=()=>copyAiText(transcript);return}
  if(['like','dislike'].includes(action)){message.vote=message.vote===action?null:action;persistAiHistory();renderAiConversation(false)}
 }
-function openAiHistory(index){closeAiPicker();if(modal.open)modal.close();clearAiDraft();if(index<aiConversations.length){activeConversation=aiConversations[index]}else{const title=aiHistoryDefaults[index-aiConversations.length];if(!title)return;activeConversation={id:aiId('chat'),title,messages:[{id:aiId('message'),role:'user',text:title},{id:aiId('message'),role:'assistant',text:aiDemoReply(title,'智能问答',[]),mode:'智能问答'}]};aiConversations.unshift(activeConversation);persistAiHistory();renderAiHistory();renderAiQuestions()}renderAiConversation()}
-const aiCommands={new:newAiConversation,collapse:()=>{const collapsed=document.querySelector('.ai-sidebar').classList.toggle('collapsed');const button=document.querySelector('.ai-collapse');button.setAttribute('aria-expanded',String(!collapsed));button.setAttribute('aria-label',collapsed?'展开侧栏':'收起侧栏')},attach:showAiAddMenu,knowledge:()=>showApp('知识库'),drive:()=>showApp('云盘'),agents:()=>openModal('智能体·技能',`<p class="detail-text">选择一个技能开始新任务</p>${aiCommandsList.filter(c=>c.id!=='task').map(c=>`<button class="result" data-ai-feature="${c.mode}">${c.name}　›</button>`).join('')}`),employees:()=>openModal('数字员工管理','<p class="detail-text">数字员工服务入口 · 本地演示</p><div class="result">办公助手　<span class="status">可体验</span></div><div class="result">知识助手　<span class="detail-meta">待接入知识库</span></div>'),history:()=>openModal('历史记录',[...aiConversations.map(c=>c.title),...aiHistoryDefaults].map((t,i)=>`<button class="result" data-ai-history="${i}">${esc(t)}</button>`).join('')),feedback:()=>{openModal('意见反馈','<form id="aiFeedbackForm"><label class="field">您的意见<textarea required placeholder="请描述问题或建议"></textarea></label><div class="modal-actions"><button class="primary">保存反馈</button></div></form>');document.querySelector('#aiFeedbackForm').onsubmit=e=>{e.preventDefault();aiSave('gx-ai-feedback',e.target.querySelector('textarea').value);modal.close();toast('反馈已保存至本地')}}};
+function openAiHistory(index){closeAiMarket();closeAiPicker();if(modal.open)modal.close();clearAiDraft();if(index<aiConversations.length){activeConversation=aiConversations[index]}else{const title=aiHistoryDefaults[index-aiConversations.length];if(!title)return;activeConversation={id:aiId('chat'),title,messages:[{id:aiId('message'),role:'user',text:title},{id:aiId('message'),role:'assistant',text:aiDemoReply(title,'智能问答',[]),mode:'智能问答'}]};aiConversations.unshift(activeConversation);persistAiHistory();renderAiHistory();renderAiQuestions()}renderAiConversation()}
+const aiMarketCategories=['全部','常用','热门','官方','个人','组织','法务','财务','人力'];
+const aiMarketDefaults=[
+ {name:'智能问答',description:'一站式答疑问',icon:'ask',tone:'blue',mode:'智能问答',categories:['常用','热门','官方']},
+ {name:'智能写作',description:'快速生成文案',icon:'write',tone:'purple',mode:'智能写作',categories:['常用','热门','官方']},
+ {name:'智能数据',description:'分析数据制报表',icon:'data',tone:'orange',mode:'智能数据',categories:['常用','热门','官方','财务']},
+ {name:'法智小新',description:'解法规，答操作',icon:'summary',tone:'cyan',mode:'智能问答',categories:['官方','法务']},
+ {name:'智能摘要',description:'提炼文章要点',icon:'book',tone:'green',mode:'智能摘要',categories:['常用','官方']},
+ {name:'财务共享',description:'一句话提交出差申请单',icon:'data',tone:'orange',mode:'智能数据',categories:['官方','财务']},
+ {name:'AI+员工服务',description:'员工服务与常见问题咨询',icon:'write',tone:'purple',mode:'智能问答',categories:['官方','人力']}
+];
+let aiMarketTab='智能体',aiMarketCategory='全部',aiMarketQuery='',aiMarketCustom=[];
+try{const items=JSON.parse(localStorage.getItem('gx-ai-market-items')||'[]');if(Array.isArray(items))aiMarketCustom=items.filter(x=>x&&typeof x.name==='string'&&typeof x.description==='string')}catch{}
+function closeAiMarket(){aiWorkspace.classList.remove('is-market');document.querySelector('.ai-market').hidden=true;document.querySelector('[data-ai-command="agents"]').classList.remove('active')}
+function openAiMarket(){closeAiPicker();aiWorkspace.classList.add('is-market');document.querySelector('.ai-market').hidden=false;document.querySelector('[data-ai-command="agents"]').classList.add('active');renderAiMarket()}
+function marketItems(){return [...aiMarketDefaults,...aiMarketCustom].filter(item=>(item.custom?item.kind===aiMarketTab:aiMarketTab==='智能体'||['智能问答','智能写作','智能数据','智能摘要'].includes(item.name))&&(aiMarketCategory==='全部'||(item.categories||[]).includes(aiMarketCategory))&&`${item.name} ${item.description}`.toLowerCase().includes(aiMarketQuery.toLowerCase()))}
+function renderAiMarket(){const market=document.querySelector('.ai-market');const items=marketItems();market.innerHTML=`<div class="ai-market-head"><h2><span class="orange-bar"></span>智能体·技能</h2><div class="ai-market-tabs" role="tablist" aria-label="市场类型">${['智能体','技能'].map(tab=>`<button role="tab" aria-selected="${aiMarketTab===tab}" class="${aiMarketTab===tab?'active':''}" data-market-tab="${tab}">${tab}</button>`).join('')}</div><button class="ai-market-create" data-market-create>＋ 创建</button></div><div class="ai-market-toolbar"><div class="ai-market-categories" aria-label="分类筛选">${aiMarketCategories.map(category=>`<button data-market-category="${category}" class="${aiMarketCategory===category?'active':''}" aria-pressed="${aiMarketCategory===category}">${category}</button>`).join('')}</div><label class="ai-market-search">${aiIcon('ask')}<input type="search" aria-label="搜索智能体和技能" placeholder="请输入" value="${esc(aiMarketQuery)}"></label></div><div class="ai-market-grid">${items.length?items.map(item=>`<button class="ai-market-card" data-market-item="${esc(item.name)}"><span class="ai-market-icon ${esc(item.tone||'blue')}">${aiIcon(item.icon)}</span><span class="ai-market-card-copy"><strong>${esc(item.name)}</strong><span title="${esc(item.description)}">${esc(item.description)}</span><small>${item.custom?'个人创建':'♨ 2万+ · @广新集团'}</small></span></button>`).join(''):'<p class="ai-market-empty">暂无匹配的内容</p>'}</div>`;market.querySelector('input').addEventListener('input',e=>{aiMarketQuery=e.target.value;const position=e.target.selectionStart;renderAiMarket();const input=market.querySelector('input');input.focus();input.setSelectionRange(position,position)})}
+function createAiMarketItem(){openModal(`创建${aiMarketTab}`,`<form id="aiMarketCreateForm"><label class="field">名称<input name="name" maxlength="30" required></label><label class="field">简介<input name="description" maxlength="60" required></label><div class="modal-actions"><button class="primary" type="submit">创建</button></div></form>`);document.querySelector('#aiMarketCreateForm').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target),name=String(data.get('name')).trim(),description=String(data.get('description')).trim();if(!name||!description)return;if([...aiMarketDefaults,...aiMarketCustom].some(item=>item.name===name)){toast('名称已存在');return}aiMarketCustom.push({name,description,kind:aiMarketTab,icon:'bot',tone:'blue',mode:'智能问答',categories:['个人'],custom:true});aiSave('gx-ai-market-items',aiMarketCustom);aiMarketCategory='全部';aiMarketQuery='';modal.close();renderAiMarket();toast('创建成功')}}
+const aiCommands={new:newAiConversation,collapse:()=>{const collapsed=document.querySelector('.ai-sidebar').classList.toggle('collapsed');document.body.classList.toggle('ai-sidebar-collapsed',collapsed);const button=document.querySelector('.ai-collapse');button.setAttribute('aria-expanded',String(!collapsed));button.setAttribute('aria-label',collapsed?'展开侧栏':'收起侧栏')},attach:showAiAddMenu,knowledge:()=>showApp('知识库'),drive:()=>showApp('云盘'),agents:()=>openModal('智能体·技能',`<p class="detail-text">选择一个技能开始新任务</p>${aiCommandsList.filter(c=>c.id!=='task').map(c=>`<button class="result" data-ai-feature="${c.mode}">${c.name}　›</button>`).join('')}`),employees:()=>openModal('数字员工管理','<p class="detail-text">数字员工服务入口 · 本地演示</p><div class="result">办公助手　<span class="status">可体验</span></div><div class="result">知识助手　<span class="detail-meta">待接入知识库</span></div>'),history:()=>openModal('历史记录',[...aiConversations.map(c=>c.title),...aiHistoryDefaults].map((t,i)=>`<button class="result" data-ai-history="${i}">${esc(t)}</button>`).join('')),feedback:()=>{openModal('意见反馈','<form id="aiFeedbackForm"><label class="field">您的意见<textarea required placeholder="请描述问题或建议"></textarea></label><div class="modal-actions"><button class="primary">保存反馈</button></div></form>');document.querySelector('#aiFeedbackForm').onsubmit=e=>{e.preventDefault();aiSave('gx-ai-feedback',e.target.querySelector('textarea').value);modal.close();toast('反馈已保存至本地')}}};
+aiCommands.agents=openAiMarket;
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
  if(b.dataset.aiCommand)aiCommands[b.dataset.aiCommand]?.();if(b.dataset.aiCategory){questionCategory=b.dataset.aiCategory;renderAiQuestions()}
+ if(b.dataset.marketTab){aiMarketTab=b.dataset.marketTab;aiMarketCategory='全部';aiMarketQuery='';renderAiMarket()}
+ if(b.dataset.marketCategory){aiMarketCategory=b.dataset.marketCategory;renderAiMarket()}
+ if(b.hasAttribute('data-market-create'))createAiMarketItem();
+ if(b.dataset.marketItem){const item=[...aiMarketDefaults,...aiMarketCustom].find(entry=>entry.name===b.dataset.marketItem);if(item){newAiConversation();chooseAiMode(item.mode||'智能问答')}}
  if(b.dataset.aiFeature){if(modal.open)modal.close();chooseAiMode(b.dataset.aiFeature)}if(b.dataset.aiMode)chooseAiMode(b.dataset.aiMode);
  if(b.dataset.aiQuestion){aiPrompt.value=b.dataset.aiQuestion;updateAiSend();aiPrompt.focus()}
  if(b.dataset.aiHistory!==undefined)openAiHistory(+b.dataset.aiHistory);
@@ -165,26 +188,71 @@ document.querySelector('#aiFileInput').onchange=e=>uploadAiFiles(e.target.files)
 document.addEventListener('pointerdown',e=>{if(!aiPopover.hidden&&!e.target.closest('.ai-composer'))closeAiPicker()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!aiPopover.hidden)closeAiPicker()});
 document.addEventListener('workspacechange',e=>{if(e.detail.page!=='ai'){closeAiPicker();if('speechSynthesis'in window)speechSynthesis.cancel()}});
+const thanksStyles=['简洁明了','轻松有趣','温柔抒情','积极向上','尊重得体'];
+const thanksBlessings={
+ '简洁明了':{
+  0:'陈晓晓，入职一周年快乐！感谢你这一年的付出，期待与你继续并肩同行。',
+  1:'陈晓晓，入职一周年快乐！过去一年辛苦了，未来的路一起走。',
+  2:'陈晓晓，入职一周年快乐！愿新的一岁工作顺遂，我们一起加油。'
+ },
+ '轻松有趣':{
+  0:'陈晓晓，入职一周年啦！官方消息：恭喜你解锁「老员工」成就，继续升级打怪！',
+  1:'陈晓晓，入职一周年快乐！工位旁的绿植都比你有经验了，但你的笑容最加分。',
+  2:'陈晓晓，入职一周年快乐！咖啡续了一年的杯，友情和默契也一起升级。'
+ },
+ '温柔抒情':{
+  0:'陈晓晓，入职一周年快乐。三百多个日夜，你温柔而坚定地做好每一件小事，这份坚持值得被看见、被感谢。',
+  1:'陈晓晓，入职一周年快乐。感谢你把热爱带进每一天的工作，愿未来的日子，温暖与好运常伴。',
+  2:'陈晓晓，入职一周年快乐。与你共事的日子，总让人安心。愿新的一程，依然眼里有光、心中有暖。'
+ },
+ '积极向上':{
+  0:'陈晓晓，入职一周年快乐！新的一岁，愿你乘势而上，再创佳绩，我们一起向更高处出发。',
+  1:'陈晓晓，入职一周年快乐！愿你在新的阶段勇往直前，把热爱做成成绩，把付出变成勋章。',
+  2:'陈晓晓，入职一周年快乐！感谢你的全力以赴，未来可期，我们一起把目标变成现实。'
+ },
+ '尊重得体':{
+  0:'陈晓晓，入职一周年快乐。感谢您一年来的辛勤付出与专业担当，愿您工作顺遂、前程似锦。',
+  1:'陈晓晓，入职一周年快乐。感谢您一直以来的敬业与协作，祝您在新的阶段再创佳绩。',
+  2:'陈晓晓，入职一周年快乐。感谢您的付出与坚守，愿未来合作顺利、收获满满。'
+ }
+};
+function currentThanksStyle(){return document.querySelector('.thanks-tag.active')?.dataset.thanksTag||'简洁明了'}
+function updateThanksCounter(){const box=document.querySelector('#thanksBox');if(!box)return;document.querySelector('.thanks-count').textContent=`${box.value.length}/200`}
+function renderThanksBlessing(){const box=document.querySelector('#thanksBox');if(!box)return;box.value=thanksBlessings[currentThanksStyle()][thanksVariant%3];updateThanksCounter()}
+function updateThanksTags(){document.querySelectorAll('.thanks-tag').forEach(t=>t.classList.toggle('active',t.dataset.thanksTag===currentThanksStyle()))}
+let thanksVariant=0;
+function openThanksDialog(){
+ const esc2=v=>String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+ const html=`<div class="thanks-dialog-body"><button class="thanks-close" aria-label="关闭祝福弹窗" title="关闭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 6.4 17.6 17.6M17.6 6.4 6.4 17.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button><div class="thanks-hero-wrap"><img class="thanks-hero" src="assets/thanks-anniversary-hero.png" alt="送入职周年祝福啦"><div class="thanks-hero-fade"></div></div><div class="thanks-card"><div class="thanks-head"><span class="thanks-tip">写一条给陈晓晓的入职周年祝福</span></div><div class="thanks-tags" role="tablist" aria-label="祝福风格">${thanksStyles.map((t,i)=>`<button class="thanks-tag${i===0?' active':''}" data-thanks-tag="${esc2(t)}" role="tab" aria-selected="${i===0}">${esc2(t)}</button>`).join('')}</div><div class="thanks-divider"></div><textarea id="thanksBox" maxlength="200" aria-label="写一条给陈晓晓的入职周年祝福" placeholder="写一条给陈晓晓的入职周年祝福"></textarea><div class="thanks-foot"><button type="button" class="thanks-emoji" data-thanks-emoji aria-label="插入表情" title="插入表情"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.15" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.15" fill="currentColor" stroke="none"/><path d="M8 14.5q4 3 8 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button><span class="thanks-footer-right"><button type="button" data-thanks-reroll title="换一换"><svg viewBox="0 0 24 24" class="thanks-reroll-icon" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>换一换</button><span class="thanks-count">0/200</span></span></div></div><button class="thanks-send" data-thanks-send>发送IM祝福</button></div>`;
+ openModal('送入职周年祝福',html);
+ modal.classList.add('thanks-dialog');
+ modal.querySelector('.thanks-close').onclick=()=>modal.close();
+ modal.querySelector('[data-thanks-emoji]').onclick=e=>{const box=modal.querySelector('#thanksBox');const s=box.selectionStart??box.value.length,en=box.selectionEnd??s;box.setRangeText('😊',s,en,'end');updateThanksCounter();box.focus()};
+ renderThanksBlessing();
+ updateThanksTags();
+ modal.querySelector('#thanksBox').addEventListener('input',updateThanksCounter);
+ modal.addEventListener('close',()=>modal.classList.remove('thanks-dialog'),{once:true});
+}
+
 document.addEventListener('click',e=>{
  if(!e.target.closest('[data-brief-thanks]'))return;
- const draft={text:aiPrompt.value,references:aiReferences,command:aiSelectedCommand,mode:selectedAiMode};
- window.navigateWorkspace('ai');
- closeAiPicker();
- activeConversation=null;
- aiPrompt.value='';
- aiReferences=[];
- aiSelectedCommand=null;
- selectedAiMode='智能写作';
- pushAiExchange(
-  '请帮我为陈晓晓入职一周年写一段感谢与鼓励。',
-  '## 入职一周年感谢\n\n陈晓晓，入职一周年快乐！\n\n感谢你过去一年在工作中的投入与付出，也感谢你与团队的协作和陪伴。你的努力值得被看见。\n\n期待未来继续携手前行，在新的工作中一起成长、收获更多成果。'
- );
- aiPrompt.value=draft.text;
- aiReferences=draft.references;
- aiSelectedCommand=draft.command;
- selectedAiMode=draft.mode;
- document.querySelectorAll('[data-ai-mode]').forEach(b=>b.classList.toggle('selected',!!draft.command&&b.dataset.aiMode===draft.mode));
- renderAiContexts();
- updateAiSend();
+ e.stopPropagation();
+ openThanksDialog();
 });
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.hasAttribute('data-thanks-tag')){thanksVariant=0;updateThanksTags();renderThanksBlessing();return}
+ if(b.hasAttribute('data-thanks-reroll')){thanksVariant=(thanksVariant+1)%3;renderThanksBlessing();return}
+ if(b.hasAttribute('data-thanks-send')){
+  const box=modal.querySelector('#thanksBox');
+  const text=box?.value.trim()||'';
+  if(!text){toast('请先输入祝福内容');box?.focus();return}
+  box.value='';
+  modal.close();
+  try{switchWorkspace(true);newAiConversation()}catch{}
+  pushAiExchange(text,'## IM 祝福已发送\n\n已按您编辑的内容发送给陈晓晓，她可在 IM 中查收。\n\n- 发送内容：'+text+'\n- 发送渠道：IM 私信\n- 发送对象：陈晓晓（入职 1 周年）\n\n祝您与同事的沟通愉快。如需生成感谢信、贺卡文案或部门群祝福，随时告诉我。');
+  toast('IM 祝福已发送');
+  return}
+});
+modal.addEventListener('close',()=>{const b=document.querySelector('.thanks-close');if(b)b.remove()});
 renderAiHistory();renderAiQuestions();updateAiSend();
