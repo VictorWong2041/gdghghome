@@ -9,7 +9,7 @@
   let undoStack = [], dirty = false, savedSnapshot = null, suppressClick = false;
   const nodes = new Map(), wrappers = new Map();
   const definitions = [
-    {id:'brief', name:'AI 今日简报', selector:'.brief', minW:300, minH:220},
+    {id:'brief', name:'AI 每日简报', selector:'.brief', minW:300, minH:220},
     {id:'summaries', name:'工作提醒', selector:'.summaries', minW:360, minH:94},
     {id:'todo', name:'统一待办', selector:'.todo-panel', minW:300, minH:200},
     {id:'mail', name:'邮箱服务', selector:'.mail-panel', minW:300, minH:200},

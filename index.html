@@ -1,11 +1,43 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>广智新 · 智慧工作台</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="ai-workspace.css"><link rel="stylesheet" href="header-menus.css"><link rel="stylesheet" href="portal.css"><link rel="stylesheet" href="im.css"><link rel="stylesheet" href="workbench-editor.css"></head>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>广智新 · 智慧工作台</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="ai-workspace.css"><link rel="stylesheet" href="ai-chat.css"><link rel="stylesheet" href="header-menus.css"><link rel="stylesheet" href="portal.css"><link rel="stylesheet" href="im.css"><link rel="stylesheet" href="workbench-editor.css"><link rel="stylesheet" href="daily-brief.css"></head>
 <body>
 <div class="reference-canvas"><header class="topbar"><a class="brand" href="./index.html">广智新</a><nav class="nav-pill" aria-label="主导航"><button class="active" data-nav="工作台">工作台</button><button data-nav="广新门户">广新门户</button><button data-nav="IM">IM</button></nav><div class="top-actions"><button class="round icon-button" data-action="search" aria-label="搜索"><svg><use href="#search"/></svg></button><div class="tools"><button class="icon-button" data-header-menu="settings" aria-label="设置" aria-haspopup="menu" aria-expanded="false" aria-controls="settingsMenu"><svg><use href="#settings"/></svg></button><i></i><button class="icon-button" data-header-menu="help" aria-label="帮助" aria-haspopup="menu" aria-expanded="false" aria-controls="helpMenu"><svg><use href="#help"/></svg></button></div><button class="user" data-action="profile"><img src="assets/avatar.png" alt="张嘉嘉头像"><b>张嘉嘉</b><span class="chevron"></span></button></div></header>
 <main class="dashboard">
-<aside class="brief panel"><div class="brief-hero" role="img" aria-label="早上好，张嘉嘉。AI为您提效赋能，聚焦关键事务与战略推进！AI今日简报"></div><div class="brief-content"><article class="brief-card"><h2><span class="small-icon coral"><svg><use href="#doc"/></svg></span>今天重要的事项</h2><div class="brief-copy"><button class="text-title" data-brief="今天重要的事项">两项待办今天到期，先处理11:00的合同审批</button><p>来源事实 待办中合同审批与市场活动费用确认均处于待处理状态，截止时间分别为11:00和17:00。目前只有待办条目，不能据此认定合同已通过审批或费用已核销。</p></div></article>
-<article class="brief-card news-card"><h2><span class="small-icon purple"><svg><use href="#doc"/></svg></span>与您工作相关的新变</h2><div class="brief-copy"><button class="text-title" data-brief="客户协同进展">两项待办今天到期，先处理11:00的合同审批</button><p>日记录显示，客户联系人尚未确认开放时间，客户协调人正在跟进。您可以先现场联调的开始时间以项目负责人更新后的安排为准，不能根据原定始发日期东区试用已经确认，但您的支持安排仍待协调</p><button class="text-title" data-brief="东区试用支持安排">东区试用已经确认，但您的支持安排仍待协调</button><p>客户确认下周一开始试用，团队排期将您列为实际支持人选，同时保留了南区项目在确认两项工作的可布场，目前没有最终调整通知。我的建议是，您准备交接清任何一项既定工作。</p><button class="text-title" data-brief="差旅费用待报销">两笔出差费用尚未报销，合计¥10,208.57</button><p>GHG-BX26091412262：机票3张，酒店3晚，合计¥6382.57；<br>GHGBX26072113834：机票4张，酒店1晚，合计¥3826.00；<br>查看关联出差申请并核对费用明细后，按实际业务办理报销。</p></div></article>
-<article class="brief-card preparation"><h2><span class="small-icon orange"><svg><use href="#doc"/></svg></span>今天的安排与准备</h2><div class="brief-copy"><button class="text-title" data-brief="今天的安排与准备">下午专题会议前，负责人需要您的最新材料状态</button><p>项目负责人将参加14:00的专题会，并需要汇总部署说明的完成情况。您不在当次场会议加入自己的必须安排，新版本付规定下周生效，但当前项目是否切换等有确认后再调整。</p></div></article></div></aside>
+<aside class="brief panel daily-brief" role="region" aria-label="AI 每日简报" tabindex="0">
+  <header class="brief-hero">
+    <h1>早上好，张部长</h1>
+    <p><time datetime="2026-11-05">2026 年 11 月 5 日，星期四</time></p>
+    <h2><span>AI 每日简报</span><small>信息截至 08:00</small></h2>
+  </header>
+  <div class="brief-content">
+    <article class="brief-card">
+      <h2><span class="small-icon coral"><svg aria-hidden="true"><use href="#doc"/></svg></span>今天的导读</h2>
+      <div class="brief-copy"><p>今天您重点关注的事项有三类：部门同事陈晓晓入职满 1 年，可以在部门内送上感谢；上午 10:00 有南区业务沟通会，当前会议室信息尚未补齐；消息中心有一条公文类提醒已超过提示时间。外部方面，您关注的集团和一家二级企业今天各发布了一条公开动态。</p></div>
+    </article>
+    <article class="brief-card brief-care">
+      <h2><span class="small-icon coral"><svg aria-hidden="true"><use href="#doc"/></svg></span>今日关怀</h2>
+      <img class="brief-care-art" src="assets/care-anniversary.png" alt="员工关怀：入职周年快乐，感恩同行，未来可期">
+      <div class="brief-copy"><h3>今天是陈晓晓的入职 1 周年</h3><p>根据入职时间记录，您的同事「陈晓晓」今天在公司工作满 1 年。感谢陈晓晓一直以来的付出，也欢迎您在部门内送上感谢与鼓励。</p><div class="brief-card-actions"><button type="button" class="brief-ai-button" data-brief-thanks>AI 帮你写感谢</button></div></div>
+    </article>
+    <article class="brief-card">
+      <h2><span class="small-icon orange"><svg aria-hidden="true"><use href="#doc"/></svg></span>今天的安排</h2>
+      <div class="brief-copy"><section class="brief-entry"><h3>上午 10:00，南区业务沟通会</h3><p>日程和会议记录显示，会议时间为今天 10:00 至 11:30，会议说明为“确认服务事项及后续安排”，但当前记录尚未填写会议室。组织者昨天新增了会议议题，并提醒参会人带齐相关说明材料。建议您确认会议地点后，再安排参会准备。</p></section><section class="brief-entry"><h3>下午 15:00，部门重点工作例会</h3><p>日程显示，今天下午 15:00 至 16:30 有部门重点工作例会。会议通知中列出了三项议程：服务事项进展、本月情况说明、近期事项提醒。系统暂未取得会议材料入口，建议您提前确认会议地点和参会准备材料。</p></section></div>
+    </article>
+    <article class="brief-card">
+      <h2><span class="small-icon purple"><svg aria-hidden="true"><use href="#doc"/></svg></span>需要关注的工作事项</h2>
+      <div class="brief-copy"><section class="brief-entry"><h3>有一条公文提醒已超过提示时间</h3><p>消息中心显示，您有一条公文类提醒已超过提示时间，主题为“请提交本月情况说明”。通知正文、处理入口和办理期限需要回到原消息查看。系统没有读取到完整业务要求，因此不能判断该项是否已经逾期，也不能判断是否必须今天提交。</p></section><section class="brief-entry"><h3>有 2 条消息需要您回复</h3><p>消息中心显示，有 2 条消息目前标记为“回复我的”：</p><ol><li>1 条来自项目管理组，主题是“确认本月服务事项范围”；</li><li>1 条来自综合组，主题是“补充会议纪要中的事项说明”。</li></ol><p>简报只显示消息存在和主题，不代替您阅读完整内容。</p></section><section class="brief-entry"><h3>有 1 条重要消息未读</h3><p>消息中心显示，有 1 条重要消息目前未读，标题为“关于近期重点事项的通知”。该消息属于重要事项分类，系统建议您在上午先查看原文，再决定是否需要安排后续跟进。</p></section></div>
+    </article>
+    <article class="brief-card">
+      <h2><span class="small-icon orange"><svg aria-hidden="true"><use href="#doc"/></svg></span>关注企业与产业动态</h2>
+      <div class="brief-copy"><section class="brief-entry"><h3>您关注的集团发布公开动态</h3><p>公开资讯显示，您关注的集团今天发布了一条关于“推进重点项目实施”的公告。该信息属于公开报道，简报未结合内部经营数据进行判断。</p></section><section class="brief-entry"><h3>一家您关注的二级企业有新动态</h3><p>公开资讯显示，一家您关注的二级企业今天发布了一条“完成新合作项目签约”的新闻。该动态来自公开资讯，简报不据此判断企业业绩、业务规模或未来影响。</p></section><section class="brief-entry"><h3>产业新闻有一条与您关注主题相关</h3><p>行业信息流中，今天有一条关于“区域数字化办公应用”的公开报道。系统根据您关注的产业主题将其归入本栏，仅作为行业新闻提示。</p></section></div>
+    </article>
+    <article class="brief-card">
+      <h2><span class="small-icon coral"><svg aria-hidden="true"><use href="#doc"/></svg></span>最后提醒</h2>
+      <div class="brief-copy"><p>今天最值得优先确认的是：上午南区业务沟通会的会议室信息，以及超期公文提醒的原要求。重要未读消息建议您在上午先看一遍，避免重要事项被延迟处理。</p></div>
+    </article>
+    <p class="brief-sources">来源：员工关怀 · 个人日程 · 会议中心 · 消息中心 · 公开资讯</p>
+  </div>
+</aside>
 <section class="workspace"><div class="summaries"><button class="summary" data-action="meeting"><span class="app-icon blue"><svg><use href="#doc"/></svg></span><span><strong><em>1</em>个会议即将开始</strong><small>10:00 · 华东区域Q3运营…</small></span></button><button class="summary" data-action="mail"><span class="app-icon orange"><svg><use href="#doc"/></svg></span><span><strong>你有 <em>3</em> 封重要邮件</strong><small>来自客户、合作方的消息</small></span></button><button class="summary" data-action="approvals"><span class="app-icon red"><svg><use href="#doc"/></svg></span><span><strong>本周有 <em>2</em> 项审批待处理</strong><small>10:00 · 华东区域Q3运营…</small></span></button><button class="summary" data-action="recommend"><span class="app-icon purple"><svg><use href="#doc"/></svg></span><span><strong>基于你的工作推荐 <em>3</em> 个</strong><small>文档协同、数据分析、项…</small></span></button></div>
 <div class="columns"><div class="middle-column"><section class="panel todo-panel"><div class="section-head"><h2><span class="heading-symbol">📣</span>统一待办</h2><button class="more" data-action="allTodos">更多 ›</button></div><div class="tabs" role="tablist" aria-label="待办分类"><button class="active" role="tab" aria-selected="true" data-tab="pending">待办 <span id="pendingCount">3</span></button><button role="tab" aria-selected="false" data-tab="done">已办 <span id="doneCount">2</span></button><button role="tab" aria-selected="false" data-tab="messages">消息 3</button></div><div id="todoList" class="todo-list"></div></section>
 <section class="panel mail-panel"><div class="section-head"><h2><span class="heading-symbol">📥</span>邮箱服务</h2><button class="more" data-action="mail">更多 ›</button></div><div id="mailList" class="mail-list"></div></section></div>

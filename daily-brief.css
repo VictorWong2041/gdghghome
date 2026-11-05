@@ -1,0 +1,133 @@
+.daily-brief {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #dce2eb transparent;
+}
+
+.daily-brief::-webkit-scrollbar { width: 6px; }
+.daily-brief::-webkit-scrollbar-thumb { background: #dce2eb; border-radius: 6px; }
+
+.daily-brief .brief-hero {
+  position: relative;
+  height: 180px;
+  background: url('assets/brief-hero-background.png') center top / 100% 100% no-repeat;
+}
+
+.daily-brief .brief-hero h1 {
+  position: absolute;
+  top: 29px;
+  left: 36px;
+  margin: 0;
+  color: #202634;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.daily-brief .brief-hero p {
+  position: absolute;
+  top: 75px;
+  left: 36px;
+  max-width: 300px;
+  margin: 0;
+  color: #737f8e;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.daily-brief .brief-hero h2 {
+  position: absolute;
+  top: 128px;
+  left: 62px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  white-space: nowrap;
+  margin: 0;
+  color: #202634;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.daily-brief .brief-hero h2 small {
+  color: #7f8997;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.daily-brief .brief-content { padding-bottom: 20px; }
+.daily-brief .brief-card { margin-bottom: 12px; padding: 14px 16px 18px; }
+.daily-brief .brief-card h2 {
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.daily-brief .brief-care-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1570 / 524;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 0 0 20px;
+}
+
+.daily-brief .brief-copy { padding-left: 36px; }
+.daily-brief .brief-copy h3 {
+  margin: 0 0 6px;
+  color: #252c3a;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.daily-brief .brief-copy p,
+.daily-brief .brief-copy li,
+body.compact .daily-brief .brief-copy p {
+  margin: 0;
+  color: #717b89;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.daily-brief .brief-entry + .brief-entry { margin-top: 20px; }
+.daily-brief .brief-copy ol { margin: 7px 0; padding-left: 20px; }
+.daily-brief .brief-copy li { padding-left: 2px; }
+.daily-brief .brief-copy li + li { margin-top: 4px; }
+.daily-brief .brief-card-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+.daily-brief .brief-ai-button {
+  min-height: 36px;
+  padding: 7px 16px;
+  border-radius: 18px;
+  background: linear-gradient(105deg, #ff9a47, #ff7040);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.daily-brief .brief-ai-button:hover { box-shadow: 0 3px 10px #ff8b5140; }
+.daily-brief .brief-sources {
+  margin: 15px 16px 2px;
+  color: #9aa3b0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+@container (max-width: 500px) {
+  .daily-brief .brief-hero h1 { left: 25px; }
+  .daily-brief .brief-hero p { left: 25px; max-width: 205px; }
+  .daily-brief .brief-copy { padding-left: 0; }
+  .daily-brief .brief-card h2 { font-size: 16px; line-height: 24px; }
+}
