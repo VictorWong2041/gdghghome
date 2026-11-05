@@ -80,3 +80,44 @@ body.ai-mode{background:#fff}
   left: 50%;
   transform: translateX(-50%);
 }
+
+/* Sidebar and market */
+.ai-page-title{max-width:290px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-mode.ai-sidebar-collapsed .brand{visibility:hidden}
+.ai-mode.ai-sidebar-collapsed .ai-collapse{left:23px;top:23px}
+.ai-mode.ai-sidebar-collapsed .ai-sidebar{padding-top:67px}
+.ai-sidebar.collapsed .ai-side-nav{padding-left:0;padding-right:0;align-items:center}
+.ai-sidebar.collapsed .ai-side-nav button{width:75px;justify-content:center;gap:0}
+.ai-sidebar.collapsed .ai-side-nav button span{display:none}
+.ai-mode.ai-sidebar-collapsed .ai-page-title{left:105px}
+.ai-side-nav button.active{background:#f0f1f3;border-radius:8px;font-weight:500}
+.ai-market[hidden]{display:none}
+.ai-workspace.is-market .ai-landing,.ai-workspace.is-market .ai-chat-view,.ai-workspace.is-market .ai-composer,.ai-workspace.is-market .ai-disclaimer,.ai-workspace.is-market .ai-page-title{display:none}
+.ai-market{position:absolute;left:278px;right:20px;top:96px;bottom:20px;overflow:auto;background:#fff;border:1px solid #e5ebf2;border-radius:16px;padding:0 20px 24px}
+.ai-sidebar-collapsed .ai-market{left:96px}
+.ai-market-head{height:64px;display:flex;align-items:center;gap:30px;border-bottom:1px solid #edf0f4}
+.ai-market-head h2{display:flex;align-items:center;gap:8px;font-size:16px;line-height:24px;font-weight:500;white-space:nowrap}
+.ai-market-tabs{display:flex;align-items:center;align-self:stretch;gap:32px;border-left:1px solid #e4e9f1;padding-left:32px}
+.ai-market-tabs button{position:relative;color:#8b94a1;font-size:16px;padding:0 3px}
+.ai-market-tabs button.active{color:#ff3432;font-weight:500}
+.ai-market-tabs button.active:after{content:'';position:absolute;bottom:9px;left:25%;right:25%;height:2px;background:#ff3432}
+.ai-market-create{margin-left:auto;padding:8px 14px;color:#fff;font-size:14px;line-height:20px;border-radius:8px;background:linear-gradient(100deg,#ff9221,#ff2428)}
+.ai-market-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0}
+.ai-market-categories{display:flex;gap:7px;flex-wrap:wrap}
+.ai-market-categories button{padding:7px 15px;border-radius:20px;color:#6e7989;font-size:14px;line-height:20px}
+.ai-market-categories button.active{color:#ff3432;background:#fff0f0;font-weight:500}
+.ai-market-search{display:flex;align-items:center;gap:7px;width:265px;height:36px;border:1px solid #dce3ec;border-radius:7px;padding:0 10px;color:#9aa5b4;flex:none}
+.ai-market-search svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7}
+.ai-market-search input{width:100%;min-width:0;border:0;outline:0;color:#303b4a;background:transparent;font-size:14px}
+.ai-market-search input::placeholder{color:#a0a9b6}
+.ai-market-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px 20px}
+.ai-market-card{min-width:0;min-height:100px;display:flex;gap:14px;align-items:flex-start;padding:16px;text-align:left;border:1px solid #e8edf4;border-radius:14px;background:#fff;box-shadow:0 3px 8px #293a4b0b}
+.ai-market-card:hover{border-color:#ffb89e;box-shadow:0 5px 15px #293a4b12}
+.ai-market-icon{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:11px;background:linear-gradient(145deg,#46b1ff,#1462f7);color:white}
+.ai-market-icon.purple{background:linear-gradient(145deg,#ba5bea,#7221d6)}.ai-market-icon.orange{background:linear-gradient(145deg,#ffb231,#ff7612)}.ai-market-icon.cyan{background:linear-gradient(145deg,#31dbd8,#02bfc8)}.ai-market-icon.green{background:linear-gradient(145deg,#15df69,#00ae44)}
+.ai-market-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7}
+.ai-market-card-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
+.ai-market-card-copy strong{font-size:14px;line-height:20px;font-weight:500}
+.ai-market-card-copy span,.ai-market-card-copy small{font-size:12px;line-height:18px;color:#929baa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-market-card-copy small{margin-top:5px}
+.ai-market-empty{grid-column:1/-1;margin:45px 0;color:#929baa;text-align:center;font-size:14px}
